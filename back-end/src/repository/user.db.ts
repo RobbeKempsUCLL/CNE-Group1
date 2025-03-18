@@ -1,4 +1,5 @@
 import { User } from "../domain/user";
+import { Role } from "../types";
 import { Container, CosmosClient } from "@azure/cosmos";
 
 interface CosmosDocument {
@@ -7,6 +8,7 @@ interface CosmosDocument {
     lastName: string;
     email: string;
     password: string;
+    role: Role;
 }
 
 export class CosmosUserRepository {
@@ -22,6 +24,7 @@ export class CosmosUserRepository {
             lastName: document.lastName,
             email: document.email,
             password: document.password,
+            role: document.role,
         });
     }
 
@@ -64,11 +67,12 @@ export class CosmosUserRepository {
             lastName: user.getLastName(),
             email: user.getEmail(),
             password: user.getPassword(),
+            role: user.getRole(),
             partition: user.getEmail().substring(0, 3),
         });
 
         if (result && result.statusCode >= 200 && result.statusCode < 400) {
-            return user;
+            return user;           
         } else {
             throw new Error("Could not create user.");
         }

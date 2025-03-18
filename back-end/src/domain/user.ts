@@ -1,15 +1,20 @@
+import { Role } from '../types';
+
 export class User {
+   
     private id?: number;
     private firstName: string;
     private lastName: string;
     private email: string;
     private password: string;
+    private role: Role;
     constructor(user: {
         id?: number;
         firstName: string;
         lastName: string;
         email: string;
         password: string;
+        role?: Role;
     }) {
         this.validate(user);
 
@@ -18,6 +23,11 @@ export class User {
         this.lastName = user.lastName;
         this.email = user.email;
         this.password = user.password;
+        this.role = user.role || 'user'; // Default role is 'user'
+    }
+
+    getRole(): Role {
+        return this.role;
     }
 
     getId(): number | undefined {

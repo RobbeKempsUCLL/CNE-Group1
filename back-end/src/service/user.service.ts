@@ -2,13 +2,15 @@ import bcrypt from 'bcrypt';
 
 import { CosmosUserRepository } from '../repository/user.db';
 import { User } from '../domain/user';
+import { UserInput } from '../types';
 
-interface UserInput {
-    password: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-}
+// interface UserInput {
+//     password: string;
+//     firstName: string;
+//     lastName: string;
+//     email: string;
+//     role?: string;
+// }
 
 export class UserService {
     private userDB: CosmosUserRepository;
@@ -17,7 +19,7 @@ export class UserService {
         this.userDB = userDB;
     }
 
-    async createUser({ password, firstName, lastName, email }: UserInput): Promise<User> {
+    async createUser({ password, firstName, lastName, email, role }: UserInput): Promise<User> {
         console.log(await this.userDB.userExists(email));
         if (await this.userDB.userExists(email)) {
             throw Error('A user with this email address already exists.');
@@ -26,7 +28,7 @@ export class UserService {
         
 
         const hashedPassword = await bcrypt.hash(password, 12);
-        const user = new User({ password: hashedPassword, firstName, lastName, email });
+        const user = new User({ password: hashedPassword, firstName, lastName, email, role });
         
         return await this.userDB.createUser(user);
     }
