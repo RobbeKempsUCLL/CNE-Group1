@@ -8,3 +8,10 @@ export type UserInput = {
     lastName: string;
     role?: Role;
 };
+
+export type AuthenticationResponse = {
+    token: string;
+    email: string;
+    fullname: string;
+    role: string;
+};

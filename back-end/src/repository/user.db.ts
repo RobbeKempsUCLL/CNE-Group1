@@ -85,8 +85,9 @@ export class CosmosUserRepository {
     
 
     async getUser(email: string): Promise<User> {
-        const { resource } = await this.container.item(email).read();
-        try{
+        const partitionKey = email.substring(0, 3); // Extract partition key
+        try {
+            const { resource } = await this.container.item(email, partitionKey).read();
             if (resource) {
                 return this.toUser(resource);
             } else {
@@ -96,6 +97,5 @@ export class CosmosUserRepository {
             console.error("Error in getUser:", error);
             throw new Error("Error retrieving user from database.");
         }
-       
-    }
+    }    
 }

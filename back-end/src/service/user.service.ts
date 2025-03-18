@@ -2,15 +2,8 @@ import bcrypt from 'bcrypt';
 
 import { CosmosUserRepository } from '../repository/user.db';
 import { User } from '../domain/user';
-import { UserInput } from '../types';
-
-// interface UserInput {
-//     password: string;
-//     firstName: string;
-//     lastName: string;
-//     email: string;
-//     role?: string;
-// }
+import { UserInput, AuthenticationResponse } from '../types';
+import { generateJwtToken } from '../util/jwt';
 
 export class UserService {
     private userDB: CosmosUserRepository;
@@ -18,6 +11,8 @@ export class UserService {
     constructor(userDB: CosmosUserRepository) {
         this.userDB = userDB;
     }
+
+    
 
     async createUser({ password, firstName, lastName, email, role }: UserInput): Promise<User> {
         console.log(await this.userDB.userExists(email));
@@ -32,6 +27,22 @@ export class UserService {
         
         return await this.userDB.createUser(user);
     }
+
+    async authenticate({ email, password }: UserInput): Promise<AuthenticationResponse> {
+        const user = await this.userDB.getUser(email); // Pass email directly
+    
+        const isValidPassword = await bcrypt.compare(password, user.getPassword());
+        if (!isValidPassword) {
+            throw new Error("Email or password is incorrect");
+        }
+    
+        return {
+            token: generateJwtToken({ email, role: user.getRole() }),
+            email: email,
+            fullname: `${user.getFirstName()} ${user.getLastName()}`,
+            role: user.getRole(),
+        };
+    }    
 }
 
 export default UserService;

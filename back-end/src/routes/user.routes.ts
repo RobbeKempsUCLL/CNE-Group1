@@ -19,6 +19,16 @@ const userRouter = Router();
             }
         });
 
+        userRouter.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                const userInput = <UserInput>req.body;
+                const response = await userService.authenticate(userInput);
+                res.status(200).json({ message: 'Authentication succesful', ...response });
+            } catch (error) {
+                next(error);
+            }
+        });
+
     } catch (error) {
         console.error("Failed to initialize user service:", error);
     }
