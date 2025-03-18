@@ -1,4 +1,4 @@
-type UserInput = {
+export type UserInput = {
     id?: number;
     email: string;
     password: string;
