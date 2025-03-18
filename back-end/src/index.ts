@@ -1,43 +1,36 @@
-import express from 'express'
-import cors from 'cors'
-//import { createLinkRoutes } from './routes/link-routes'
-//import { LinkService } from './service/link-service'
-//import { SimpleUser } from './domain/user';
-//import { errorHandler } from './routes/route-factory';
-//import { createUserRoutes } from './routes/user-routes';
 import dotenv from 'dotenv';
-
-import * as bodyParser from 'body-parser';
-//import { UserService } from './service/user-service';
-
 dotenv.config();
 
+import express from 'express'
+import { expressjwt } from 'express-jwt';
+import cors from 'cors'
+import  userRouter from './routes/user.routes';
+
+import * as bodyParser from 'body-parser';
 
 const port = process.env.APP_PORT || 3000;
 
-// declare module "express-serve-static-core" {
-//   interface Request {
-//     user?: SimpleUser;
-//   }
-// }
+
 
 const app = express()
+app.use(bodyParser.json());
 app.use(cors())
 
+app.use(
+  expressjwt({
+      secret: process.env.JWT_SECRET || 'default_secret',
+      algorithms: ['HS256'],
+  }).unless({
+      path: ['/users/login', '/users/signup', '/status'],
+  })
+);
 
-// Init services
-// const linkService = new LinkService();
-// const userService = new UserService();
+console.log('JWT secret:', process.env.JWT_SECRET);
+console.log('jwt expires hours:', process.env.JWT_EXPIRES_HOURS);
 
-// Create routes
-// createUserRoutes(app, userService);
-// createLinkRoutes(app, linkService, {});
-
-// Errorhandler needs to be registered last
-//app.use(errorHandler);
+app.use('/users', userRouter);
 
 
-app.use(bodyParser.json());
 
 app.get('/status', (req, res) => {
   res.json({ message: 'Back-end is running...' });
