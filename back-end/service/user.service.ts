@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 import { CosmosUserRepository } from '../repository/user.db';
 import { User } from '../domain/user';
