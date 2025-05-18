@@ -11,10 +11,14 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@azure/cosmos": "^4.4.1",
     "@azure/functions": "^4.0.0",
-    "back-end": "file:"
+    "back-end": "file:",
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.x",
     "rimraf": "^5.0.0",
     "typescript": "^4.0.0"

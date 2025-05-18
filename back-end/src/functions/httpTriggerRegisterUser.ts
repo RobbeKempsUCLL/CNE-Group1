@@ -3,8 +3,6 @@ import {UserService} from "../../service/user.service";
 import {UserInput} from "../../types";
 import {CosmosUserRepository} from "../../repository/user.db";
 
-//
-
 export async function HttpTriggerRegisterUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const userService = new UserService(await CosmosUserRepository.getInstance());
