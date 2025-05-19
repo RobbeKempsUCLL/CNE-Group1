@@ -6,7 +6,7 @@ import { UserInput, AuthenticationResponse } from '../types';
 import { generateJwtToken } from '../util/jwt';
 
 export class UserService {
-    private userDB: CosmosUserRepository;
+    private readonly userDB: CosmosUserRepository;
 
     constructor(userDB: CosmosUserRepository) {
         this.userDB = userDB;
