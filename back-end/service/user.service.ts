@@ -42,7 +42,10 @@ export class UserService {
             fullname: `${user.getFirstName()} ${user.getLastName()}`,
             role: user.getRole(),
         };
-    }    
+    }
+    async getUser(email: string): Promise<User> {
+        return await this.userDB.getUser(email);
+    } 
 }
 
 export default UserService;
