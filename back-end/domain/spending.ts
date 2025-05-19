@@ -1,23 +1,28 @@
+import { SpendingCategory } from '../types';
+
 export class Spending {
     private id?: number;
-    private userId: number;
+    private userEmail: string;
+    private title: string;
     private amount: number;
-    private category: string;
+    private category: SpendingCategory;
     private description?: string;
     private date: Date;
 
     constructor(spending: {
         id?: number;
-        userId: number;
+        userEmail: string;
+        title: string;
         amount: number;
-        category: string;
+        category: SpendingCategory;
         description?: string;
         date?: Date;
     }) {
         this.validate(spending);
 
         this.id = spending.id;
-        this.userId = spending.userId;
+        this.userEmail = spending.userEmail;
+        this.title = spending.title;
         this.amount = spending.amount;
         this.category = spending.category;
         this.description = spending.description || '';
@@ -28,15 +33,19 @@ export class Spending {
         return this.id;
     }
 
-    getUserId(): number {
-        return this.userId;
+    getUserEmail(): string {
+        return this.userEmail;
+    }
+
+    getTitle(): string {
+        return this.title;
     }
 
     getAmount(): number {
         return this.amount;
     }
 
-    getCategory(): string {
+    getCategory(): SpendingCategory {
         return this.category;
     }
 
@@ -49,12 +58,16 @@ export class Spending {
     }
 
     validate(spending: {
-        userId: number;
+        userEmail: string;
+        title: string;
         amount: number;
         category: string;
     }) {
-        if (!spending.userId) {
-            throw new Error('User ID is required');
+        if (!spending.userEmail) {
+            throw new Error('User is required');
+        }
+        if (!spending.title) {
+            throw new Error('Title is required');
         }
         if (spending.amount <= 0) {
             throw new Error('Amount must be greater than zero');

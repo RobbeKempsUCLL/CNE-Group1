@@ -11,4 +11,14 @@ const generateJwtToken = ({ email, role }: { email: string; role: Role }): strin
     }
 };
 
-export { generateJwtToken };
+const verifyJwtToken = (token: string): { email: string; role: Role } => {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string; role: Role };
+        return decoded;
+    } catch (err) {
+        console.error('JWT verification failed:', err);
+        throw new Error('Invalid token');
+    }
+};
+
+export { generateJwtToken, verifyJwtToken };

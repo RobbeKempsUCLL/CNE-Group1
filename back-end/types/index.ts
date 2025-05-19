@@ -20,7 +20,8 @@ export type SpendingCategory = 'housing' | 'food' | 'transportation' | 'entertai
 
 export type SpendingInput = {
     id?: number;
-    userId: number;
+    title: string;
+    userEmail: string;
     amount: number;
     category: SpendingCategory;
     description?: string;
