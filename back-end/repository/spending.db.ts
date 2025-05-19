@@ -16,7 +16,7 @@ export class CosmosSpendingRepository {
     private static instance: CosmosSpendingRepository;
 
     private toSpending(document: CosmosDocument): Spending {
-        if (!document.id || !document.userEmail || document.amount === undefined || !document.category) {
+        if (!document.id || !document.userEmail || !document.title|| document.amount === undefined || !document.category) {
             throw new Error('Invalid spending document.');
         }
         return new Spending({
@@ -75,5 +75,15 @@ export class CosmosSpendingRepository {
 
         const {resource} = await this.container.items.create(spendingDocument);
         return this.toSpending(resource);
+    }
+
+    async getSpendingsByUserEmail(userEmail: string): Promise<Spending[]> {
+        const querySpec = {
+            query: 'SELECT * FROM c WHERE c.userEmail = @userEmail',
+            parameters: [{name: '@userEmail', value: userEmail}],
+        };
+
+        const {resources} = await this.container.items.query<CosmosDocument>(querySpec).fetchAll();
+        return resources.map(doc => this.toSpending(doc));
     }
 }

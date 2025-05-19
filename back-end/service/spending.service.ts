@@ -14,7 +14,9 @@ export class SpendingService {
         return await this.spendingDB.createSpending(spending);
     }
 
-    // async getSpendingsByUserEmail(userEmail: string): Promise<Spending[]> {
-    //     return await this.spendingDB.getSpendingsByUserEmail(userEmail);
-    // }
+    async getSpendingsByUserEmail(userEmail: string): Promise<{ spendings: Spending[], total: number }> {
+    const spendings = await this.spendingDB.getSpendingsByUserEmail(userEmail);
+    const total = Number(spendings.reduce((sum, s) => sum + s.getAmount(), 0).toFixed(2));
+    return { spendings, total };
+}
 }
