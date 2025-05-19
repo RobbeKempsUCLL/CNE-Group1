@@ -15,3 +15,14 @@ export type AuthenticationResponse = {
     fullname: string;
     role: string;
 };
+
+export type SpendingCategory = 'housing' | 'food' | 'transportation' | 'entertainment' | 'utilities' | 'education' | 'clothing' | 'savings' | 'other';
+
+export type SpendingInput = {
+    id?: number;
+    userId: number;
+    amount: number;
+    category: SpendingCategory;
+    description?: string;
+    date?: Date;
+};
