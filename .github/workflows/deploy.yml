@@ -7,7 +7,7 @@ on:
 env:
   NODE_VERSION: "20.x"
   AZURE_FUNCTIONAPP_NAME: "finance-app-cne"
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: "./back-end/dist" # deploy dist, not build in it
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "./back-end"  # ✅ deploy from root, like VS Code
 
 permissions:
   contents: read
@@ -32,8 +32,9 @@ jobs:
   build-and-deploy-functions:
     runs-on: ubuntu-latest
     environment: dev
+
     steps:
-      - name: "Checkout GitHub Action"
+      - name: Checkout GitHub Action
         uses: actions/checkout@v3
 
       - name: Setup Node ${{ env.NODE_VERSION }} Environment
@@ -41,7 +42,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: "Resolve Project Dependencies Using Npm"
+      - name: Resolve Project Dependencies Using Npm
         shell: pwsh
         run: |
           pushd './back-end'  
@@ -50,12 +51,7 @@ jobs:
           npm run test --if-present
           popd
 
-      - name: Show contents of build output
-        run: |
-          echo "Contents of ./back-end/dist:"
-          ls -R ./back-end/dist
-
-      - name: "Run Azure Functions Action"
+      - name: Run Azure Functions Action
         uses: Azure/functions-action@v1
         id: fa
         with:
