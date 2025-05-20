@@ -7,7 +7,7 @@ on:
 env:
   NODE_VERSION: "20.x"
   AZURE_FUNCTIONAPP_NAME: "finance-app-cne"
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: "./back-end"  # ✅ deploy from root, like VS Code
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "./back-end"
 
 permissions:
   contents: read
