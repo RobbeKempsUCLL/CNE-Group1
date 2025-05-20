@@ -23,7 +23,7 @@ jobs:
       - name: Run Upload Script
         run: |
           chmod +x ./upload-to-azure.sh
-          ./upload-site.sh
+          ./upload-to-azure.sh
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
