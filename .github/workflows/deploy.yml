@@ -2,42 +2,58 @@ name: Build and Deploy Node.js Azure Function App
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
-  NODE_VERSION: '20.x'
-  AZURE_FUNCTIONAPP_NAME: 'finance-app-cne'
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './back-end/dist'  # deploy dist, not build in it
+  NODE_VERSION: "20.x"
+  AZURE_FUNCTIONAPP_NAME: "finance-app-cne"
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "./back-end/dist" # deploy dist, not build in it
 
 permissions:
   contents: read
 
 jobs:
+  upload-site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Run Upload Script
+        run: |
+          chmod +x ./upload-site.sh
+          ./upload-site.sh
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+          AZURE_STORAGE_SAS_TOKEN: ${{ secrets.AZURE_STORAGE_SAS_TOKEN }}
+
   build-and-deploy-functions:
     runs-on: ubuntu-latest
     environment: dev
     steps:
-    - name: 'Checkout GitHub Action'
-      uses: actions/checkout@v3
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v3
 
-    - name: Setup Node ${{ env.NODE_VERSION }} Environment
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-    - name: 'Resolve Project Dependencies Using Npm'
-      shell: pwsh
-      run: |
-        pushd './back-end'  
-        npm install
-        npm run build --if-present
-        npm run test --if-present
-        popd
+      - name: "Resolve Project Dependencies Using Npm"
+        shell: pwsh
+        run: |
+          pushd './back-end'  
+          npm install
+          npm run build --if-present
+          npm run test --if-present
+          popd
 
-    - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
-      id: fa
-      with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+      - name: "Run Azure Functions Action"
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
