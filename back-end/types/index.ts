@@ -17,6 +17,7 @@ export type AuthenticationResponse = {
 };
 
 export type SpendingCategory = 'housing' | 'food' | 'transportation' | 'entertainment' | 'utilities' | 'education' | 'clothing' | 'savings' | 'other';
+export type IncomeCategory = 'earned' | 'passive' | 'assistance' | 'other';
 
 export type SpendingInput = {
     id?: number;
@@ -24,6 +25,16 @@ export type SpendingInput = {
     userEmail: string;
     amount: number;
     category: SpendingCategory;
+    description?: string;
+    date?: Date;
+};
+
+export type IncomeInput = {
+    id?: number;
+    title: string;
+    userEmail: string;
+    amount: number;
+    category: IncomeCategory;
     description?: string;
     date?: Date;
 };
