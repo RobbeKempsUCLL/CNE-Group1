@@ -1,6 +1,6 @@
 import { CosmosSpendingRepository } from "../repository/spending.db";
 import { Spending } from "../domain/spending";
-import { SpendingInput } from "../types";
+import { SpendingCategory, SpendingInput } from "../types";
 
 export class SpendingService {
     private readonly spendingDB: CosmosSpendingRepository;
@@ -14,7 +14,15 @@ export class SpendingService {
         return await this.spendingDB.createSpending(spending);
     }
 
-    // async getSpendingsByUserEmail(userEmail: string): Promise<Spending[]> {
-    //     return await this.spendingDB.getSpendingsByUserEmail(userEmail);
-    // }
+    async getSpendingsByUserEmail(userEmail: string): Promise<{ spendings: Spending[], total: number }> {
+        const spendings = await this.spendingDB.getSpendingsByUserEmail(userEmail);
+        const total = Number(spendings.reduce((sum, s) => sum + s.getAmount(), 0).toFixed(2));
+        return { spendings, total };
+    }
+
+    async getSpendingsByUserEmailAndCategory(userEmail: string, category: SpendingCategory): Promise<{ spendings: Spending[], total: number }> {
+        const spendings = await this.spendingDB.getSpendingsByUserEmailAndCategory(userEmail, category);
+        const total = Number(spendings.reduce((sum, s) => sum + s.getAmount(), 0).toFixed(2));
+        return { spendings, total };
+    }
 }

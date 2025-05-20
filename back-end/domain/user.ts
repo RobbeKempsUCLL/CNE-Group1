@@ -68,7 +68,7 @@ export class User {
         if (!user.password?.trim()) {
             throw new Error('Password is required');
         }
-        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
+        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
             throw new Error('Email is not correct');
         }
     }
