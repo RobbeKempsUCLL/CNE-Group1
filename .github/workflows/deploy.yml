@@ -7,7 +7,7 @@ on:
 env:
   NODE_VERSION: '20.x'
   AZURE_FUNCTIONAPP_NAME: 'finance-app-cne'  # Your Function App name from Azure
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './back-end'  # Path to function app project root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './back-end/dist'  # Path to function app project root
 
 permissions:
   contents: read
