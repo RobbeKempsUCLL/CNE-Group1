@@ -86,4 +86,17 @@ export class CosmosSpendingRepository {
         const {resources} = await this.container.items.query<CosmosDocument>(querySpec).fetchAll();
         return resources.map(doc => this.toSpending(doc));
     }
+
+    async getSpendingsByUserEmailAndCategory(userEmail: string, category: SpendingCategory): Promise<Spending[]> {
+        const querySpec = {
+            query: 'SELECT * FROM c WHERE c.userEmail = @userEmail AND c.category = @category',
+            parameters: [
+                {name: '@userEmail', value: userEmail},
+                {name: '@category', value: category},
+            ],
+        };
+
+        const {resources} = await this.container.items.query<CosmosDocument>(querySpec).fetchAll();
+        return resources.map(doc => this.toSpending(doc));
+    }
 }

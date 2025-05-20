@@ -2,6 +2,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { SpendingService } from "../../service/spending.service";
 import { CosmosSpendingRepository } from "../../repository/spending.db";
 import { verifyJwtToken } from "../../util/jwt"; 
+import { SpendingCategory } from "../../types";
 
 export async function httpTriggerGetSpendings(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -35,12 +36,21 @@ export async function httpTriggerGetSpendings(request: HttpRequest, context: Inv
         };
     }
     try {
+        const categoryFilter = request.query.get('category') as SpendingCategory; // ?category=food
+
         const spendingService = new SpendingService(await CosmosSpendingRepository.getInstance());
-        const {spendings, total} = await spendingService.getSpendingsByUserEmail(userEmail);
+        let result;
+        if (categoryFilter) {
+            result = await spendingService.getSpendingsByUserEmailAndCategory(userEmail, categoryFilter);
+            
+        }
+        else {
+            result = await spendingService.getSpendingsByUserEmail(userEmail);
+        }
 
         return {
             status: 200,
-            jsonBody: {spendings, total}
+            jsonBody: result
         };
     } catch (error) {
         context.log({error});
