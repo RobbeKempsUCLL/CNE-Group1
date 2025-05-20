@@ -13,29 +13,30 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-functions:
     runs-on: ubuntu-latest
     environment: dev
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v4
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v3
 
-    - name: Setup Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v4
+    - name: Setup Node ${{ env.NODE_VERSION }} Environment
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/package-lock.json'
 
-    - name: Install, Build, and Test
-      working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+    - name: 'Resolve Project Dependencies Using Npm'
+      shell: pwsh
       run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         npm install
         npm run build --if-present
         npm run test --if-present
+        popd
 
-    - name: Deploy to Azure Function App
+    - name: 'Run Azure Functions Action'
       uses: Azure/functions-action@v1
+      id: fa
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
