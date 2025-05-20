@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Personal Finance Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f6f8; }
+        h1 { color: #2d3e50; }
+        .container { max-width: 600px; margin: auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        form { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        input, select, button { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f0f2f5; }
+        .summary { display: flex; justify-content: space-between; margin-bottom: 16px; }
+        .income { color: #2ecc71; }
+        .expense { color: #e74c3c; }
+        .budget { color: #2980b9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Personal Finance Tracker</h1>
+        <div class="summary">
+            <div class="income">Income: €<span id="totalIncome">0</span></div>
+            <div class="expense">Expenses: €<span id="totalExpenses">0</span></div>
+            <div class="budget">Budget: €<span id="budget">0</span></div>
+            <div class="budget">Balance: €<span id="balance">0</span></div>
+        </div>
+        <form id="budgetForm">
+            <input type="number" id="budgetInput" placeholder="Set monthly budget (€)" min="0" required>
+            <button type="submit">Set Budget</button>
+        </form>
+        <form id="transactionForm">
+            <input type="text" id="desc" placeholder="Description" required>
+            <input type="number" id="amount" placeholder="Amount (€)" step="0.01" required>
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+            <button type="submit">Add</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount (€)</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="transactions"></tbody>
+        </table>
+    </div>
+    <script>
+        let transactions = [];
+        let budget = 0;
+
+        function updateSummary() {
+            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            document.getElementById('totalIncome').textContent = income.toFixed(2);
+            document.getElementById('totalExpenses').textContent = expenses.toFixed(2);
+            document.getElementById('budget').textContent = budget.toFixed(2);
+            document.getElementById('balance').textContent = (budget + income - expenses).toFixed(2);
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactions');
+            tbody.innerHTML = '';
+            transactions.forEach((t, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.desc}</td>
+                    <td>${t.amount.toFixed(2)}</td>
+                    <td class="${t.type}">${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</td>
+                    <td>${t.date}</td>
+                    <td><button onclick="deleteTransaction(${i})">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteTransaction(index) {
+            transactions.splice(index, 1);
+            renderTransactions();
+            updateSummary();
+            saveData();
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const desc = document.getElementById('desc').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            if (!desc || isNaN(amount) || amount <= 0) return;
+
+            if (type === 'expense') {
+                const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                if ((expenses + amount) > budget) {
+                    alert('Expense cannot exceed the budget.');
+                    return;
+                }
+            }
+
+            transactions.push({
+                desc,
+                amount,
+                type,
+                date: new Date().toLocaleDateString()
+            });
+            this.reset();
+            renderTransactions();
+            updateSummary();
+            saveData();
+        });
+
+        document.getElementById('budgetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const value = parseFloat(document.getElementById('budgetInput').value);
+            if (!isNaN(value) && value >= 0) {
+                budget = value;
+                updateSummary();
+                saveData();
+            }
+        });
+
+        function saveData() {
+            localStorage.setItem('finance_transactions', JSON.stringify(transactions));
+            localStorage.setItem('finance_budget', budget);
+        }
+
+        function loadData() {
+            const t = localStorage.getItem('finance_transactions');
+            const b = localStorage.getItem('finance_budget');
+            if (t) transactions = JSON.parse(t);
+            if (b) budget = parseFloat(b);
+        }
+
+        // Expose deleteTransaction to global scope
+        window.deleteTransaction = deleteTransaction;
+
+        // Initialize
+        loadData();
+        renderTransactions();
+        updateSummary();
+    </script>
+</body>
+</html>
