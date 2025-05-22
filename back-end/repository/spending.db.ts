@@ -99,4 +99,16 @@ export class CosmosSpendingRepository {
         const {resources} = await this.container.items.query<CosmosDocument>(querySpec).fetchAll();
         return resources.map(doc => this.toSpending(doc));
     }
+
+    async deleteSpending(spendingId: number, userEmail: string): Promise<Spending> {
+        //const spendingDocumentId = spendingId.toString();
+        const spendingsUser = this.getSpendingsByUserEmail(userEmail);
+        const spendingToDelete = (await spendingsUser).find(spending => spending.getId() === spendingId);
+        console.log(`spendingToDelete ID: ${spendingToDelete.getId()}`);
+        if (!spendingToDelete) {
+            throw new Error(`Spending with id ${spendingId} not found.`);
+        }
+        this.container.item(spendingToDelete.getId().toString()).delete();
+        return spendingToDelete;
+    }
 }
