@@ -1,7 +1,7 @@
 // front-end/js/home.js
 
 // 1. Base URL for your Functions host
-const API_BASE = 'http://localhost:7071/api';
+const API_BASE = 'https://finance-app-cne.azurewebsites.net/api';
 
 // 2. Authenticated fetch helper
 function authFetch(path, opts = {}) {
