@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function fetchSpentPerCategory() {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("jwt");
         if (!token) return;
 
         for (const category of categories) {

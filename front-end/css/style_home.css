@@ -10,3 +10,44 @@ body { font-family: Arial, sans-serif; background: #f4f6f8; }
         .income { color: #2ecc71; }
         .expense { color: #e74c3c; }
         .budget { color: #2980b9; }
+
+.category-summary-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #0002;
+    padding: 24px 32px;
+    margin: 32px 0;
+    min-width: 260px;
+}
+
+#categorySummaryTable {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px #0001;
+}
+
+#categorySummaryTable th, #categorySummaryTable td {
+    padding: 12px 18px;
+    text-align: center;
+}
+
+#categorySummaryTable th {
+    background: #2d3e50;
+    color: #fff;
+    font-weight: 600;
+}
+
+#categorySummaryTable tr:nth-child(even) {
+    background: #f0f4f8;
+}
+
+#categorySummaryTable tr:hover {
+    background: #e3e9f0;
+}
