@@ -3,7 +3,6 @@ export class Budget {
     private id?: number;
     private userEmail: string;
     private amount: number;
-    private month: Date;
     private description?: string;
     private createdAt: Date;
 
@@ -11,8 +10,6 @@ export class Budget {
         id?: number;
         userEmail: string;
         amount: number;
-        month: number;
-        year: number;
         description?: string;
         createdAt?: Date;
     }) {
@@ -21,7 +18,6 @@ export class Budget {
         this.id = budget.id;
         this.userEmail = budget.userEmail;
         this.amount = budget.amount;
-        this.month = new Date(budget.year, budget.month); 
         this.description = budget.description || '';
         this.createdAt = budget.createdAt || new Date();
     }
@@ -33,9 +29,6 @@ export class Budget {
     }
     getAmount(): number {
         return this.amount;
-    }
-    getMonth(): Date {
-        return this.month;
     }
     getDescription(): string {
         return this.description || '';
@@ -52,8 +45,6 @@ export class Budget {
     validate(budget: {
         userEmail: string;
         amount: number;
-        month: number;
-        year: number;
         description?: string;
         createdAt?: Date;
     }) {
@@ -62,12 +53,6 @@ export class Budget {
         }
         if (budget.amount <= 0) {
             throw new Error('Amount must be greater than zero.');
-        }
-        if (!budget.month) {
-            throw new Error('Month is required.');
-        }
-        if(budget.month  < 1 || budget.month > 12) {
-            throw new Error('Month must be between 1 and 12.');
         }
     }
 };
