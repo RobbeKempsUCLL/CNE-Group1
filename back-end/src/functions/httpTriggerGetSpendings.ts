@@ -53,10 +53,10 @@ export async function httpTriggerGetSpendings(request: HttpRequest, context: Inv
             jsonBody: result
         };
     } catch (error) {
-        context.log({error});
+        context.log(`Error: ${error}`);
         return {
             status: 500,
-            jsonBody: { error: 'Internal Server Error' }
+            jsonBody: { error: (error instanceof Error) ? error.message : String(error) }
         };
     }
 };

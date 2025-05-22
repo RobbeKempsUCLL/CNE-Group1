@@ -1,9 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { SpendingService } from "../../service/spending.service";
-import { CosmosSpendingRepository } from "../../repository/spending.db";
+import { BudgetService } from "../../service/budget.service";
+import { BudgetInput } from "../../types";
+import { CosmosBudgetRepository } from "../../repository/budget.db"; 
 import { verifyJwtToken } from "../../util/jwt"; 
 
-export async function httpTriggerDeleteSpending(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+
+export async function httpTriggerAddBudget(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
     const authHeader = request.headers.get('authorization');
@@ -34,22 +36,21 @@ export async function httpTriggerDeleteSpending(request: HttpRequest, context: I
             jsonBody: { error: 'Unauthorized: Invalid token' }
         };
     }
+
     try {
-        const id = request.query.get('id'); // ?id=123
+        const input = await request.json() as Omit<BudgetInput, 'userEmail'>;
 
-        if (!id) {
-            return {
-                status: 400,
-                jsonBody: { error: 'Bad Request: Missing id parameter' }
-            };
-        }
+        const budgetInput: BudgetInput = {
+            ...input,
+            userEmail,
+        };
 
-        const spendingService = new SpendingService(await CosmosSpendingRepository.getInstance());
-        const spending = await spendingService.deleteSpending(parseInt(id), userEmail);
+        const budgetService = new BudgetService(await CosmosBudgetRepository.getInstance());
+        const budget = await budgetService.createBudget(budgetInput);
 
         return {
-            status: 200,
-            jsonBody: spending
+            status: 201,
+            jsonBody: budget
         };
     } catch (error) {
         context.log(`Error: ${error}`);
@@ -60,8 +61,8 @@ export async function httpTriggerDeleteSpending(request: HttpRequest, context: I
     }
 };
 
-app.http('httpTriggerDeleteSpending', {
-    methods: ['DELETE',],
+app.http('httpTriggerAddBudget', {
+    methods: ['POST'],
     authLevel: 'anonymous',
-    handler: httpTriggerDeleteSpending
+    handler: httpTriggerAddBudget
 });
