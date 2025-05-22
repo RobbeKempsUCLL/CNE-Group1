@@ -2,9 +2,9 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { IncomeService } from "../../service/income.service";
 import { CosmosIncomeRepository } from "../../repository/income.db";
 import { IncomeInput } from "../../types";
-import { verifyJwtToken } from "../../util/jwt"; 
+import { verifyJwtToken } from "../../util/jwt";
 
-export async function httpTriggerAddIncome(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function httpTriggerUpdateIncome(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
     const authHeader = request.headers.get('authorization');
@@ -25,7 +25,7 @@ export async function httpTriggerAddIncome(request: HttpRequest, context: Invoca
         if (!userEmail) {
             return {
                 status: 401,
-                jsonBody: { error: 'Unauthorized: No correct token with email' }
+                jsonBody: { error: 'Unauthorized: Token does not contain a valid email' }
             };
         }
     } catch (err) {
@@ -39,20 +39,27 @@ export async function httpTriggerAddIncome(request: HttpRequest, context: Invoca
     try {
         const input = await request.json() as Omit<IncomeInput, 'userEmail'>;
 
+        if (!input.id) {
+            return {
+                status: 400,
+                jsonBody: { error: 'Income ID is required to update.' }
+            };
+        }
+
         const incomeInput: IncomeInput = {
             ...input,
             userEmail,
         };
 
         const incomeService = new IncomeService(await CosmosIncomeRepository.getInstance());
-        const income = await incomeService.createIncome(incomeInput);
+        const updatedIncome = await incomeService.updateIncome(incomeInput);
 
         return {
-            status: 201,
-            jsonBody: income
+            status: 200,
+            jsonBody: updatedIncome
         };
     } catch (error) {
-        context.log(`Error: ${error}`);
+        context.log(`Error updating income: ${error}`);
         return {
             status: 500,
             jsonBody: { error: 'Internal Server Error' }
@@ -60,8 +67,8 @@ export async function httpTriggerAddIncome(request: HttpRequest, context: Invoca
     }
 }
 
-app.http('httpTriggerAddIncome', {
-    methods: ['POST'],
+app.http('httpTriggerUpdateIncome', {
+    methods: ['PUT'],
     authLevel: 'anonymous',
-    handler: httpTriggerAddIncome
+    handler: httpTriggerUpdateIncome
 });
