@@ -43,7 +43,7 @@
         </div>
         <form id="budgetForm">
             <input type="number" id="budgetInput" placeholder="Set monthly budget (€)" min="0" required>
-            <button type="submit">Set Budget</button>
+            <button id="setBudgetBtn" type="button">Set Budget</button>
         </form>
         <form id="transactionForm">
             <input type="number" id="amount" placeholder="Amount (€)" step="0.01" required>
@@ -77,5 +77,6 @@
             <tbody id="transactions"></tbody>
         </table>
     </div>
+    <script type="module" src="js/home.js"></script>
 </body>
 </html>

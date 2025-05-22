@@ -56,11 +56,12 @@ export async function httpTriggerGetBudget(request: HttpRequest, context: Invoca
             jsonBody: result
         };
     } catch (error) {
-        context.log(`Error: ${error}`);
+        context.log(`Budget GET error for ${userEmail}: ${error}`);
+        // If there was any problem (including “no doc”), return budget = 0
         return {
-            status: 500,
-            jsonBody: { error: (error instanceof Error) ? error.message : String(error) }
-        };
+        status: 200,
+        jsonBody: { budget: 0 }
+    };
     }
 };
 
