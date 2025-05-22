@@ -116,27 +116,51 @@ export class CosmosBudgetRepository {
     }
 
     async getBudgetByUserEmailAndMonth(userEmail: string, month: number, year: number): Promise<Budget | null> {
+        console.log(`[budgetDB] getBudgetByUserEmailAndMonth called with`, { userEmail, month, year });
         const query = {
-            query: 'SELECT * FROM c WHERE c.userEmail = @userEmail AND c.year = @year',
+            query: `
+                SELECT * FROM c 
+                WHERE c.userEmail = @userEmail 
+                  AND c.year = @year 
+                  AND c.monthInt = @monthInt
+            `,
             parameters: [
                 { name: '@userEmail', value: userEmail },
                 { name: '@year', value: year },
+                { name: '@monthInt', value: month },
             ],
         };
 
         const { resources } = await this.container.items.query<CosmosDocument>(query).fetchAll();
+        if (!resources.length) return null;
 
-        // Filter in code for month (since c.month is a Date string)
-        const doc = resources.find(doc => {
-            const docMonth = new Date(doc.month).getMonth();
-            return docMonth === month;
-        });
-
-        if (!doc) {
-            return null;
-        }
-        return this.toBudget(doc);
+        return this.toBudget(resources[0]);
     }
+
+    async updateBudgetAmount(id: number, userEmail: string, newAmount: number): Promise<Budget> {
+        const budgetsUser = await this.getBudgetsByUserEmail(userEmail);
+        console.log(`[budgetDB] budgetsUser`, budgetsUser);
+        const budgetToChange = budgetsUser.find(b => b.getId() === id);
+        if (!budgetToChange) {
+            throw new Error(`Budget with id ${id} not found.`);
+        }
+        budgetToChange.setAmount(newAmount);
+        const updatedDocument: CosmosDocument = {
+            id: budgetToChange.getId()?.toString() || '',
+            userEmail: budgetToChange.getUserEmail(),
+            amount: budgetToChange.getAmount(),
+            month: budgetToChange.getMonth(),
+            monthInt: budgetToChange.getMonth().getMonth(),
+            year: budgetToChange.getMonth().getFullYear(),
+            description: budgetToChange.getDescription(),
+            createdAt: budgetToChange.getCreatedAt(),
+        };
+        await this.container.item(updatedDocument.id, userEmail).replace(updatedDocument);
+        return budgetToChange;
+    }
+
+
+
 
 
 }

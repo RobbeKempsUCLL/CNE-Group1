@@ -1,4 +1,5 @@
 export class Budget {
+    
     private id?: number;
     private userEmail: string;
     private amount: number;
@@ -41,6 +42,12 @@ export class Budget {
     }
     getCreatedAt(): Date {
         return this.createdAt;
+    }
+    setAmount(newAmount: number) {
+        if (newAmount <= 0) {
+            throw new Error('Amount must be greater than zero.');
+        }
+        this.amount = newAmount;
     }
     validate(budget: {
         userEmail: string;

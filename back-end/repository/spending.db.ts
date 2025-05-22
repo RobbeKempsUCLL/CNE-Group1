@@ -100,6 +100,25 @@ export class CosmosSpendingRepository {
         return resources.map(doc => this.toSpending(doc));
     }
 
+    async getSpendingsByUserEmailAndMonth(userEmail: string, year: number, month: number): Promise<Spending[]> {
+        const paddedMonth = month.toString().padStart(2, '0'); // ensures "05" format for May
+        
+        const querySpec = {
+            query: `
+                SELECT * FROM c 
+                WHERE c.userEmail = @userEmail 
+                  AND STARTSWITH(c.date, @yearMonth)
+            `,
+            parameters: [
+                { name: '@userEmail', value: userEmail },
+                { name: '@yearMonth', value: `${year}-${paddedMonth}` }, // e.g., "2025-05"
+            ],
+        };
+    
+        const { resources } = await this.container.items.query<CosmosDocument>(querySpec).fetchAll();
+        return resources.map(doc => this.toSpending(doc));
+    }
+
     async deleteSpending(spendingId: number, userEmail: string): Promise<Spending> {
         //const spendingDocumentId = spendingId.toString();
         const spendingsUser = this.getSpendingsByUserEmail(userEmail);

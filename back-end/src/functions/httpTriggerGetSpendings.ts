@@ -1,6 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { SpendingService } from "../../service/spending.service";
 import { CosmosSpendingRepository } from "../../repository/spending.db";
+import { BudgetService } from "../../service/budget.service";
 import { verifyJwtToken } from "../../util/jwt"; 
 import { SpendingCategory } from "../../types";
 
@@ -36,15 +37,23 @@ export async function httpTriggerGetSpendings(request: HttpRequest, context: Inv
         };
     }
     try {
-        const categoryFilter = request.query.get('category') as SpendingCategory; // ?category=food
-
-        const spendingService = new SpendingService(await CosmosSpendingRepository.getInstance());
+        const categoryFilter = request.query.get('category') as SpendingCategory | null;
+        const monthFilter = request.query.get('month');
+        const yearFilter = request.query.get('year');
+        const { CosmosBudgetRepository } = await import("../../repository/budget.db");
+        const spendingService = new SpendingService(
+            await CosmosSpendingRepository.getInstance(),
+            new BudgetService(await CosmosBudgetRepository.getInstance())
+        );
         let result;
-        if (categoryFilter) {
+
+        if (monthFilter && yearFilter) {
+            const month = parseInt(monthFilter);
+            const year = parseInt(yearFilter);
+            result = await spendingService.getSpendingByUserEmailAndMonth(userEmail, month, year);
+        } else if (categoryFilter) {
             result = await spendingService.getSpendingsByUserEmailAndCategory(userEmail, categoryFilter);
-            
-        }
-        else {
+        } else {
             result = await spendingService.getSpendingsByUserEmail(userEmail);
         }
 

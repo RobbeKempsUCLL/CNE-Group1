@@ -20,10 +20,14 @@ export class BudgetService {
     }
 
     async getBudgetByUserEmailAndMonth(userEmail: string, month: number, year: number): Promise<{ budget: Budget}> {
+        console.log(`Fetching budget for user: ${userEmail}, month: ${month}, year: ${year}`);
         const budget = await this.budgetDB.getBudgetByUserEmailAndMonth(userEmail, month, year);
         if (!budget) {
             throw new Error(`Budget not found for user ${userEmail} for month ${month} and year ${year}.`);
         }
         return { budget};
+    }
+    async updateBudget(id:number, userEmail: string, amount:number): Promise<Budget> {
+        return await this.budgetDB.updateBudgetAmount(id, userEmail, amount);
     }
 };
