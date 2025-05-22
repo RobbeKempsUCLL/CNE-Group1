@@ -99,4 +99,40 @@ export class CosmosIncomeRepository {
         const {resources} = await this.container.items.query<CosmosDocument>(querySpec).fetchAll();
         return resources.map(doc => this.toIncome(doc));
     }
+
+    async deleteIncome(incomeId: number, userEmail: string): Promise<Income> {
+        const incomeUser = this.getIncomeByUserEmail(userEmail);
+        const incomeToDelete = (await incomeUser).find(income => income.getId() === incomeId);
+        console.log(`incomeToDelete ID: ${incomeToDelete.getId()}`);
+        if (!incomeToDelete) {
+            throw new Error(`Income with id ${incomeId} not found.`);
+        }
+        this.container.item(incomeToDelete.getId().toString()).delete();
+        return incomeToDelete;
+    }
+
+    async updateIncome(updatedIncome: Income): Promise<Income> {
+    const id = updatedIncome.getId();
+    const userEmail = updatedIncome.getUserEmail(); // Assuming this is your partition key
+
+    if (!id || !userEmail) {
+        throw new Error("Income ID and userEmail are required for update.");
+    }
+
+    const incomeDocument = {
+        id: id.toString(),
+        userEmail,
+        title: updatedIncome.getTitle(),
+        amount: updatedIncome.getAmount(),
+        category: updatedIncome.getCategory(),
+        description: updatedIncome.getDescription(),
+        date: updatedIncome.getDate(),
+    };
+
+    const { resource } = await this.container
+        .item(id.toString(), userEmail)
+        .replace(incomeDocument);
+
+    return this.toIncome(resource);
+}
 }
