@@ -43,8 +43,6 @@ export type BudgetInput = {
     id?: number;
     userEmail: string;
     amount: number;
-    month: number;
-    year: number;
     description?: string;
     createdAt?: Date;
 }

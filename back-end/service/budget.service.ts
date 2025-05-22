@@ -9,8 +9,8 @@ export class BudgetService {
         this.budgetDB = budgetDB;
     }
 
-    async createBudget({ userEmail, amount, month, year, description }: BudgetInput): Promise<Budget> {
-        const budget = new Budget({ userEmail, amount, month, year, description });
+    async createBudget({ userEmail, amount, description }: BudgetInput): Promise<Budget> {
+        const budget = new Budget({ userEmail, amount, description });
         return await this.budgetDB.createBudget(budget);
     }
 

@@ -5,27 +5,23 @@ interface CosmosDocument {
     id: string;
     userEmail: string;
     amount: number;
-    month: Date;
-    monthInt: number;
-    year: number;
     description?: string;
-    createdAt?: Date;
+    createdAt?: string;
+    year?: number;
+    monthInt?: number;
 }
 
 export class CosmosBudgetRepository {
     private static instance: CosmosBudgetRepository;
 
     private toBudget(document: CosmosDocument): Budget {
-        if (!document.id || !document.userEmail || document.amount === undefined || !document.month) {
+        if (!document.id || !document.userEmail || document.amount === undefined) {
             throw new Error('Invalid budget document.');
         }
-        const monthDate = new Date(document.month);
         return new Budget({
             id: parseInt(document.id),
             userEmail: document.userEmail,
             amount: document.amount,
-            month: monthDate.getMonth(), // convert Date to 1-based month
-        year: monthDate.getFullYear(),
             description: document.description,
             createdAt: document.createdAt ? new Date(document.createdAt) : new Date(),
         });
@@ -64,9 +60,9 @@ export class CosmosBudgetRepository {
 
     async createBudget(budget: Budget): Promise<Budget> {
         const userEmail = budget.getUserEmail();
-        const monthDate = budget.getMonth();
-        const year = monthDate.getFullYear();
-        const month = monthDate.getMonth(); // 1-based
+        const createdAt = budget.getCreatedAt();  // Use createdAt date
+        const year = createdAt.getFullYear();
+        const month = createdAt.getMonth() + 1; // getMonth() is zero-based, +1 to match 1-based month
 
         // Query for existing budget for same user, month, and year
         const query = {
@@ -94,16 +90,18 @@ export class CosmosBudgetRepository {
             id: budget.getId()?.toString() || Date.now().toString(),
             userEmail,
             amount: budget.getAmount(),
-            month: budget.getMonth(),
-            monthInt: month,
-            year,
             description: budget.getDescription(),
-            createdAt: budget.getCreatedAt(),
+            createdAt: createdAt.toISOString(),
+
+            // Add year and monthInt explicitly to the document
+            year: year,
+            monthInt: month,
         };
 
         const { resource } = await this.container.items.create(document);
         return this.toBudget(resource);
     }
+
 
     async getBudgetsByUserEmail(userEmail: string): Promise<Budget[]> {
         const query = {
@@ -149,11 +147,8 @@ export class CosmosBudgetRepository {
             id: budgetToChange.getId()?.toString() || '',
             userEmail: budgetToChange.getUserEmail(),
             amount: budgetToChange.getAmount(),
-            month: budgetToChange.getMonth(),
-            monthInt: budgetToChange.getMonth().getMonth(),
-            year: budgetToChange.getMonth().getFullYear(),
             description: budgetToChange.getDescription(),
-            createdAt: budgetToChange.getCreatedAt(),
+            createdAt: budgetToChange.getCreatedAt().toISOString(),
         };
         await this.container.item(updatedDocument.id).replace(updatedDocument);
         return budgetToChange;
