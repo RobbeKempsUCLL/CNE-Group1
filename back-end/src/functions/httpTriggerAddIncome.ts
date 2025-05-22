@@ -55,7 +55,7 @@ export async function httpTriggerAddIncome(request: HttpRequest, context: Invoca
         context.log(`Error: ${error}`);
         return {
             status: 500,
-            jsonBody: { error: 'Internal Server Error' }
+            jsonBody: { error: (error instanceof Error) ? error.message : String(error) }
         };
     }
 }

@@ -1,12 +1,9 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { SpendingService } from "../../service/spending.service";
-import { CosmosSpendingRepository } from "../../repository/spending.db";
-import { SpendingInput } from "../../types";
-import { verifyJwtToken } from "../../util/jwt"; 
+import { verifyJwtToken } from "../../util/jwt";
 import { BudgetService } from "../../service/budget.service";
 import { CosmosBudgetRepository } from "../../repository/budget.db";
 
-export async function httpTriggerAddSpending(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function httpTriggerUpdateBudget(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
     const authHeader = request.headers.get('authorization');
@@ -39,23 +36,32 @@ export async function httpTriggerAddSpending(request: HttpRequest, context: Invo
     }
 
     try {
-        const input = await request.json() as Omit<SpendingInput, 'userEmail'>;
+        const id = request.query.get('id'); // ?id=123
 
-        const spendingInput: SpendingInput = {
-            ...input,
-            userEmail,
-        };
+       if (!id) {
+            return {
+                status: 400,
+                jsonBody: { error: 'Bad Request: Missing id parameter' }
+            };
+        }
 
-        const spendingService = new SpendingService(
-                    await CosmosSpendingRepository.getInstance(),
-                    new BudgetService(await CosmosBudgetRepository.getInstance())
-                );
-        const spending = await spendingService.createSpending(spendingInput);
+        const body = await request.json() as { amount: number };
+
+        if (typeof body.amount !== "number") {
+            return {
+                status: 400,
+                jsonBody: { error: "Bad Request: Missing or invalid 'amount' in body" },
+            };
+        }
+
+        const budgetService = new BudgetService(await CosmosBudgetRepository.getInstance());
+        const updatedBudget = await budgetService.updateBudget(parseInt(id), userEmail, body.amount);
 
         return {
-            status: 201,
-            jsonBody: spending
+            status: 200,
+            jsonBody: updatedBudget,
         };
+
     } catch (error) {
         context.log(`Error: ${error}`);
         return {
@@ -63,10 +69,10 @@ export async function httpTriggerAddSpending(request: HttpRequest, context: Invo
             jsonBody: { error: (error instanceof Error) ? error.message : String(error) }
         };
     }
-}
+};
 
-app.http('httpTriggerAddSpending', {
-    methods: ['POST'],
+app.http('httpTriggerUpdateBudget', {
+    methods: ['PUT'],
     authLevel: 'anonymous',
-    handler: httpTriggerAddSpending
+    handler: httpTriggerUpdateBudget
 });

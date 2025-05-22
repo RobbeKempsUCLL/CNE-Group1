@@ -1,7 +1,9 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { SpendingService } from "../../service/spending.service";
 import { CosmosSpendingRepository } from "../../repository/spending.db";
+import { BudgetService } from "../../service/budget.service";
 import { verifyJwtToken } from "../../util/jwt"; 
+import { CosmosBudgetRepository } from "../../repository/budget.db";
 
 export async function httpTriggerDeleteSpending(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -43,27 +45,21 @@ export async function httpTriggerDeleteSpending(request: HttpRequest, context: I
                 jsonBody: { error: 'Bad Request: Missing id parameter' }
             };
         }
-
-        const spendingService = new SpendingService(await CosmosSpendingRepository.getInstance());
+        const spendingService = new SpendingService(
+            await CosmosSpendingRepository.getInstance(),
+            new BudgetService(await CosmosBudgetRepository.getInstance())
+        );
         const spending = await spendingService.deleteSpending(parseInt(id), userEmail);
 
         return {
             status: 200,
             jsonBody: spending
         };
-    } catch (error: any) {
+    } catch (error) {
         context.log(`Error: ${error}`);
-
-        if (error.message?.includes('not found')) {
-            return {
-                status: 404,
-                jsonBody: { error: `Spending with the specified id was not found.` }
-            };
-        }
-
         return {
             status: 500,
-            jsonBody: { error: 'Internal Server Error' }
+            jsonBody: { error: (error instanceof Error) ? error.message : String(error) }
         };
     }
 };

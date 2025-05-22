@@ -16,7 +16,7 @@ export class Spending {
         amount: number;
         category: SpendingCategory;
         description?: string;
-        date?: Date;
+        date?: Date | string;  // <-- Accept string or Date here
     }) {
         this.validate(spending);
 
@@ -26,7 +26,7 @@ export class Spending {
         this.amount = spending.amount;
         this.category = spending.category;
         this.description = spending.description || '';
-        this.date = spending.date || new Date();
+        this.date = spending.date ? new Date(spending.date) : new Date();
     }
 
     getId(): number | undefined {

@@ -1,12 +1,9 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { SpendingService } from "../../service/spending.service";
-import { CosmosSpendingRepository } from "../../repository/spending.db";
-import { SpendingInput } from "../../types";
 import { verifyJwtToken } from "../../util/jwt"; 
 import { BudgetService } from "../../service/budget.service";
 import { CosmosBudgetRepository } from "../../repository/budget.db";
 
-export async function httpTriggerAddSpending(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function httpTriggerGetBudget(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
     const authHeader = request.headers.get('authorization');
@@ -37,24 +34,26 @@ export async function httpTriggerAddSpending(request: HttpRequest, context: Invo
             jsonBody: { error: 'Unauthorized: Invalid token' }
         };
     }
-
     try {
-        const input = await request.json() as Omit<SpendingInput, 'userEmail'>;
+        
+        const monthFilter = request.query.get('month');
+        const yearFilter = request.query.get('year');
 
-        const spendingInput: SpendingInput = {
-            ...input,
-            userEmail,
-        };
+        const budgetService = new BudgetService(await CosmosBudgetRepository.getInstance());
+        let result;
+        if (monthFilter && yearFilter) {
+            const month = parseInt(monthFilter);
+            const year = parseInt(yearFilter);
 
-        const spendingService = new SpendingService(
-                    await CosmosSpendingRepository.getInstance(),
-                    new BudgetService(await CosmosBudgetRepository.getInstance())
-                );
-        const spending = await spendingService.createSpending(spendingInput);
+            result = await budgetService.getBudgetByUserEmailAndMonth(userEmail, month, year);         
+        } else {
+            result = await budgetService.getBudgetsByUserEmail(userEmail);
+        }
+        
 
         return {
-            status: 201,
-            jsonBody: spending
+            status: 200,
+            jsonBody: result
         };
     } catch (error) {
         context.log(`Error: ${error}`);
@@ -63,10 +62,10 @@ export async function httpTriggerAddSpending(request: HttpRequest, context: Invo
             jsonBody: { error: (error instanceof Error) ? error.message : String(error) }
         };
     }
-}
+};
 
-app.http('httpTriggerAddSpending', {
-    methods: ['POST'],
+app.http('httpTriggerGetBudget', {
+    methods: ['GET'],
     authLevel: 'anonymous',
-    handler: httpTriggerAddSpending
+    handler: httpTriggerGetBudget
 });
