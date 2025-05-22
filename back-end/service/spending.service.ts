@@ -25,4 +25,11 @@ export class SpendingService {
         const total = Number(spendings.reduce((sum, s) => sum + s.getAmount(), 0).toFixed(2));
         return { spendings, total };
     }
+
+    async deleteSpending(id: number, userEmail: string): Promise<Spending> {
+        if (!id) {
+            throw new Error(`Id is required to delete a spending.`);
+        }
+        return await this.spendingDB.deleteSpending(id, userEmail);
+    }
 }
