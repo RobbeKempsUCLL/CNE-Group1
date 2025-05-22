@@ -5,7 +5,9 @@
     <title>Personal Finance Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/style_home.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="./js/logout.js" defer></script>
+    <script src="./js/overview.js" defer></script>
 </head>
 <body>
     <header style="background: #2d3e50; color: #fff; padding: 16px 0; margin-bottom: 24px;">
@@ -16,6 +18,21 @@
             </nav>
         </div>
     </header>
+    <div style="display: flex; gap: 32px;">
+    <div class="category-summary-wrapper">
+        <h2>Spent per Category</h2>
+        <table id="categorySummaryTable">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Spent (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div style="flex: 1;">
     <div class="container">
         <h1>Personal Finance Tracker</h1>
         <div class="summary">
@@ -60,143 +77,5 @@
             <tbody id="transactions"></tbody>
         </table>
     </div>
-    <!-- <script>
-        let transactions = [];
-        let budget = 0;
-
-        function updateSummary() {
-            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            document.getElementById('totalIncome').textContent = income.toFixed(2);
-            document.getElementById('totalExpenses').textContent = expenses.toFixed(2);
-            document.getElementById('budget').textContent = budget.toFixed(2);
-            document.getElementById('balance').textContent = (budget + income - expenses).toFixed(2);
-        }
-
-        function renderTransactions() {
-            const tbody = document.getElementById('transactions');
-            tbody.innerHTML = '';
-            transactions.forEach((t, i) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${t.amount.toFixed(2)}</td>
-                    <td>${t.amount.toFixed(2)}</td>
-                    <td class="${t.type}">${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</td>
-                    <td><button onclick="deleteTransaction(${i})">Delete</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function deleteTransaction(index) {
-            transactions.splice(index, 1);
-            renderTransactions();
-            updateSummary();
-            saveData();
-        }
-
-        document.getElementById('transactionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const desc = document.getElementById('desc').value.trim();
-            const amount = parseFloat(document.getElementById('amount').value);
-            const type = document.getElementById('type').value;
-            if (!desc || isNaN(amount) || amount <= 0) return;
-
-            if (type === 'expense') {
-                const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-                if ((expenses + amount) > budget) {
-                    alert('Expense cannot exceed the budget.');
-                    return;
-                }
-            }
-
-            transactions.push({
-                desc,
-                amount,
-                type
-            });
-            this.reset();
-            renderTransactions();
-            updateSummary();
-            saveData();
-        });
-
-        document.getElementById('budgetForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const value = parseFloat(document.getElementById('budgetInput').value);
-            if (!isNaN(value) && value >= 0) {
-                budget = value;
-                updateSummary();
-                saveData();
-            }
-        });
-
-        function saveData() {
-            localStorage.setItem('finance_transactions', JSON.stringify(transactions));
-            localStorage.setItem('finance_budget', budget);
-        }
-
-        function loadData() {
-            const t = localStorage.getItem('finance_transactions');
-            const b = localStorage.getItem('finance_budget');
-            if (t) transactions = JSON.parse(t);
-            if (b) budget = parseFloat(b);
-        }
-
-        // Fix transaction form handling
-        document.getElementById('transactionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('amount').value);
-            const title = document.getElementById('title').value.trim();
-            const category = document.getElementById('category').value;
-            const type = document.getElementById('type').value;
-            if (!title || isNaN(amount) || amount <= 0 || !category) return;
-
-            if (type === 'expense') {
-            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            if ((expenses + amount) > budget) {
-                alert('Expense cannot exceed the budget.');
-                return;
-            }
-            }
-
-            transactions.push({
-            amount,
-            title,
-            category,
-            type
-            });
-            this.reset();
-            renderTransactions();
-            updateSummary();
-            saveData();
-        });
-
-        // Update renderTransactions to match transactionForm data
-        function renderTransactions() {
-            const tbody = document.getElementById('transactions');
-            tbody.innerHTML = '';
-            transactions.forEach((t, i) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${t.amount.toFixed(2)}</td>
-                <td>${t.title || ''}</td>
-                <td>${t.category || ''}</td>
-                <td class="${t.type}">${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</td>
-                <td><button onclick="deleteTransaction(${i})">Delete</button></td>
-                <td><button onclick="editTransaction(${i})">Edit</button></td>
-            `;
-            tbody.appendChild(tr);
-            });
-        }
-
-        // Expose deleteTransaction to global scope
-        window.deleteTransaction = deleteTransaction;
-
-        // Initialize
-        loadData();
-        renderTransactions();
-        updateSummary();
-    </script> -->
 </body>
 </html>
