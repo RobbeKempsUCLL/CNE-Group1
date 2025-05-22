@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/style_home.css" />
     <script src="./js/logout.js" defer></script>
+    <script src="./js/overview.js" defer></script>
 </head>
 <body>
     <header style="background: #2d3e50; color: #fff; padding: 16px 0; margin-bottom: 24px;">
@@ -16,6 +17,21 @@
             </nav>
         </div>
     </header>
+    <div style="display: flex; gap: 32px;">
+    <div style="min-width: 220px;">
+        <h2>Spent per Category</h2>
+        <table id="categorySummaryTable">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Spent (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div style="flex: 1;">
     <div class="container">
         <h1>Personal Finance Tracker</h1>
         <div class="summary">
