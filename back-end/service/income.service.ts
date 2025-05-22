@@ -25,4 +25,11 @@ export class IncomeService {
         const total = Number(income.reduce((sum, s) => sum + s.getAmount(), 0).toFixed(2));
         return { income, total };
     }
+
+    async deleteIncome(id: number, userEmail: string): Promise<Income> {
+        if (!id) {
+            throw new Error(`Id is required to delete an income instance.`);
+        }
+        return await this.incomeDB.deleteIncome(id, userEmail);
+    }
 }
