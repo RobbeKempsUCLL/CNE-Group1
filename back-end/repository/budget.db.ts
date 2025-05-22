@@ -155,8 +155,18 @@ export class CosmosBudgetRepository {
             description: budgetToChange.getDescription(),
             createdAt: budgetToChange.getCreatedAt(),
         };
-        await this.container.item(updatedDocument.id, userEmail).replace(updatedDocument);
+        await this.container.item(updatedDocument.id).replace(updatedDocument);
         return budgetToChange;
+    }
+
+    async deleteBudget(id: number, userEmail: string): Promise<Budget> {
+        const budgetsUser = await this.getBudgetsByUserEmail(userEmail);
+        const budgetToDelete = budgetsUser.find(b => b.getId() === id);
+        if (!budgetToDelete) {
+            throw new Error(`Budget with id ${id} not found.`);
+        }
+        await this.container.item(budgetToDelete.getId().toString()).delete();
+        return budgetToDelete;
     }
 
 
