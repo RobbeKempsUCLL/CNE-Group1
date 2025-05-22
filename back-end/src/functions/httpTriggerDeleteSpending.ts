@@ -51,8 +51,16 @@ export async function httpTriggerDeleteSpending(request: HttpRequest, context: I
             status: 200,
             jsonBody: spending
         };
-    } catch (error) {
+    } catch (error: any) {
         context.log(`Error: ${error}`);
+
+        if (error.message?.includes('not found')) {
+            return {
+                status: 404,
+                jsonBody: { error: `Spending with the specified id was not found.` }
+            };
+        }
+
         return {
             status: 500,
             jsonBody: { error: 'Internal Server Error' }

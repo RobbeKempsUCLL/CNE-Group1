@@ -104,7 +104,6 @@ export class CosmosSpendingRepository {
         //const spendingDocumentId = spendingId.toString();
         const spendingsUser = this.getSpendingsByUserEmail(userEmail);
         const spendingToDelete = (await spendingsUser).find(spending => spending.getId() === spendingId);
-        console.log(`spendingToDelete ID: ${spendingToDelete.getId()}`);
         if (!spendingToDelete) {
             throw new Error(`Spending with id ${spendingId} not found.`);
         }
