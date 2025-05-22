@@ -59,8 +59,8 @@ export class Budget {
         if (!budget.month) {
             throw new Error('Month is required.');
         }
-        // if(budget.month  ) {
-        //     throw new Error('Must be in the future');
-        // }
+        if(budget.month  < 1 || budget.month > 12) {
+            throw new Error('Month must be between 1 and 12.');
+        }
     }
 };

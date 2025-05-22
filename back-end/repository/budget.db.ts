@@ -6,6 +6,7 @@ interface CosmosDocument {
     userEmail: string;
     amount: number;
     month: Date;
+    monthInt: number;
     year: number;
     description?: string;
     createdAt?: Date;
@@ -73,10 +74,12 @@ export class CosmosBudgetRepository {
                 SELECT * FROM c
                 WHERE c.userEmail = @userEmail
                   AND c.year = @year
+                  AND c.monthInt = @monthInt
             `,
             parameters: [
                 { name: '@userEmail', value: userEmail },
                 { name: '@year', value: year },
+                { name: '@monthInt', value: month },
             ],
         };
 
@@ -92,6 +95,7 @@ export class CosmosBudgetRepository {
             userEmail,
             amount: budget.getAmount(),
             month: budget.getMonth(),
+            monthInt: month,
             year,
             description: budget.getDescription(),
             createdAt: budget.getCreatedAt(),
@@ -100,5 +104,39 @@ export class CosmosBudgetRepository {
         const { resource } = await this.container.items.create(document);
         return this.toBudget(resource);
     }
+
+    async getBudgetsByUserEmail(userEmail: string): Promise<Budget[]> {
+        const query = {
+            query: 'SELECT * FROM c WHERE c.userEmail = @userEmail',
+            parameters: [{ name: '@userEmail', value: userEmail }],
+        };
+
+        const { resources } = await this.container.items.query<CosmosDocument>(query).fetchAll();
+        return resources.map(doc => this.toBudget(doc));
+    }
+
+    async getBudgetByUserEmailAndMonth(userEmail: string, month: number, year: number): Promise<Budget | null> {
+        const query = {
+            query: 'SELECT * FROM c WHERE c.userEmail = @userEmail AND c.year = @year',
+            parameters: [
+                { name: '@userEmail', value: userEmail },
+                { name: '@year', value: year },
+            ],
+        };
+
+        const { resources } = await this.container.items.query<CosmosDocument>(query).fetchAll();
+
+        // Filter in code for month (since c.month is a Date string)
+        const doc = resources.find(doc => {
+            const docMonth = new Date(doc.month).getMonth();
+            return docMonth === month;
+        });
+
+        if (!doc) {
+            return null;
+        }
+        return this.toBudget(doc);
+    }
+
 
 }
