@@ -32,4 +32,13 @@ export class IncomeService {
         }
         return await this.incomeDB.deleteIncome(id, userEmail);
     }
+
+    async updateIncome(incomeInput: IncomeInput): Promise<Income> {
+    if (!incomeInput.id) {
+        throw new Error("Income ID is required for update.");
+    }
+
+    const updatedIncome = new Income(incomeInput); // Includes validation
+    return await this.incomeDB.updateIncome(updatedIncome);
+}
 }

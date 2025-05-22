@@ -110,4 +110,27 @@ export class CosmosIncomeRepository {
         this.container.item(incomeToDelete.getId().toString()).delete();
         return incomeToDelete;
     }
+
+    async updateIncome(income: Income): Promise<Income> {
+    const id = income.getId();
+    if (!id) {
+        throw new Error('Income ID is required for update.');
+    }
+
+    const incomeDocument = {
+        id: id.toString(),
+        userEmail: income.getUserEmail(),
+        title: income.getTitle(),
+        amount: income.getAmount(),
+        category: income.getCategory(),
+        description: income.getDescription(),
+        date: income.getDate(),
+    };
+
+    const { resource } = await this.container
+        .item(id.toString(), income.getUserEmail()) // Using userEmail as partition key
+        .replace(incomeDocument);
+
+    return this.toIncome(resource);
+}
 }
