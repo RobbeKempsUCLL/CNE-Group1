@@ -111,24 +111,26 @@ export class CosmosIncomeRepository {
         return incomeToDelete;
     }
 
-    async updateIncome(income: Income): Promise<Income> {
-    const id = income.getId();
-    if (!id) {
-        throw new Error('Income ID is required for update.');
+    async updateIncome(updatedIncome: Income): Promise<Income> {
+    const id = updatedIncome.getId();
+    const userEmail = updatedIncome.getUserEmail(); // Assuming this is your partition key
+
+    if (!id || !userEmail) {
+        throw new Error("Income ID and userEmail are required for update.");
     }
 
     const incomeDocument = {
         id: id.toString(),
-        userEmail: income.getUserEmail(),
-        title: income.getTitle(),
-        amount: income.getAmount(),
-        category: income.getCategory(),
-        description: income.getDescription(),
-        date: income.getDate(),
+        userEmail,
+        title: updatedIncome.getTitle(),
+        amount: updatedIncome.getAmount(),
+        category: updatedIncome.getCategory(),
+        description: updatedIncome.getDescription(),
+        date: updatedIncome.getDate(),
     };
 
     const { resource } = await this.container
-        .item(id.toString(), income.getUserEmail()) // Using userEmail as partition key
+        .item(id.toString(), userEmail)
         .replace(incomeDocument);
 
     return this.toIncome(resource);

@@ -38,7 +38,7 @@ export class IncomeService {
         throw new Error("Income ID is required for update.");
     }
 
-    const updatedIncome = new Income(incomeInput); // Includes validation
-    return await this.incomeDB.updateIncome(updatedIncome);
+    const income = new Income(incomeInput); // your domain class
+    return await this.incomeDB.updateIncome(income);
 }
 }
