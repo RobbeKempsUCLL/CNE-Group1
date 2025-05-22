@@ -1,4 +1,4 @@
-body { font-family: Arial, sans-serif; margin: 20px; background: #f4f6f8; }
+body { font-family: Arial, sans-serif; background: #f4f6f8; }
         h1 { color: #2d3e50; }
         .container { max-width: 800px; margin: auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
         form { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }

@@ -5,13 +5,14 @@
     <title>Personal Finance Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/style_home.css" />
+    <script src="./js/logout.js" defer></script>
 </head>
 <body>
     <header style="background: #2d3e50; color: #fff; padding: 16px 0; margin-bottom: 24px;">
         <div style="max-width: 600px; margin: auto; display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 1.5em; font-weight: bold;">FinanceTracker</span>
             <nav>
-                <button style="margin-right: 8px;" onclick="location.href='index.html'">LogOut</button>
+                <button id="logoutBtn" style="margin-right: 8px;">LogOut</button>
             </nav>
         </div>
     </header>
@@ -59,7 +60,7 @@
             <tbody id="transactions"></tbody>
         </table>
     </div>
-    <script>
+    <!-- <script>
         let transactions = [];
         let budget = 0;
 
@@ -196,6 +197,6 @@
         loadData();
         renderTransactions();
         updateSummary();
-    </script>
+    </script> -->
 </body>
 </html>
