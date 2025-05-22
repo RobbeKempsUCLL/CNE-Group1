@@ -27,6 +27,10 @@ export class BudgetService {
         }
         return { budget};
     }
+    async deleteBudget(id: number, userEmail: string): Promise<void> {
+        await this.budgetDB.deleteBudget(id, userEmail);
+    }
+    
     async updateBudget(id:number, userEmail: string, amount:number): Promise<Budget> {
         return await this.budgetDB.updateBudgetAmount(id, userEmail, amount);
     }
