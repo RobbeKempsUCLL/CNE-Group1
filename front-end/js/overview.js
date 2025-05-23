@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // if (!localStorage.getItem("jwt")) {
-    //     window.location.href = "index.html";
-    //     return;
-    // }
+    if (!localStorage.getItem("jwt")) {
+        window.location.href = "index.html";
+        return;
+    }
 
     const categories = ["Food", "Housing", "Hobbies", "Other"];
     const categoryApiNames = {
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const apiCategory = categoryApiNames[category];
             try {
                 const res = await fetch(
-                    `https://finance-app-cne.azurewebsites.net/api/httpTriggerGetSpendings?category=${apiCategory}`,
+                    `${API_BASE}httpTriggerGetSpendings?category=${apiCategory}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
