@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const apiCategory = categoryApiNames[category];
             try {
                 const res = await fetch(
-                    `${API_BASE}httpTriggerGetSpendings?category=${apiCategory}`,
+                    `${API_BASE}/httpTriggerGetSpendings?category=${apiCategory}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
