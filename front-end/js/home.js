@@ -10,6 +10,7 @@ function authFetch(path, opts = {}) {
 }
 
 let transactions = [];
+let budgetId = null;
 let budget = 0;
 
 async function loadData() {
@@ -19,7 +20,8 @@ async function loadData() {
   const year  = now.getFullYear();
 
   console.log('fetching budget for', month, year);
-  let bv;   
+ let bv;
+  let budgetJson;
   try {
     const res = await authFetch(
       `/httpTriggerGetBudget?month=${month}&year=${year}`,
@@ -27,17 +29,17 @@ async function loadData() {
     );
     console.log('budget response status:', res.status);
 
-    const json = await res.json();
-    console.log('budget payload:', json);
+    budgetJson = await res.json();
+    console.log('budget payload:', budgetJson);
 
-    if (typeof json.budget === 'number') {
-      bv = json.budget;
+    if (typeof budgetJson.budget === 'number') {
+      bv = budgetJson.budget;
     }
-    else if (json.budget && typeof json.budget.amount === 'number') {
-      bv = json.budget.amount;
+    else if (budgetJson.budget && typeof budgetJson.budget.amount === 'number') {
+      bv = budgetJson.budget.amount;
     }
-    else if (typeof json.amount === 'number') {
-      bv = json.amount;
+    else if (typeof budgetJson.amount === 'number') {
+      bv = budgetJson.amount;
     }
     else {
       console.warn('Unrecognized budget shape, defaulting to 0');
@@ -46,9 +48,15 @@ async function loadData() {
   } catch (err) {
     console.error('budget fetch failed:', err);
     bv = 0;
+    budgetJson = null;
   }
 
   budget = bv;
+  budgetId = budgetJson
+    ? (budgetJson.id
+       ?? (budgetJson.budget && budgetJson.budget.id)
+       ?? null)
+    : null;
   console.log('loaded budget =', budget);
   document.getElementById('budgetInput').value = budget;
 
@@ -121,29 +129,61 @@ function updateSummary() {
 }
 
 function wireUpBudget() {
-  document.getElementById('setBudgetBtn').addEventListener('click', async () => {
-    const val = parseFloat(document.getElementById('budgetInput').value);
-    budget = isNaN(val) ? 0 : val;
+  setBudgetBtn.addEventListener('click', async () => {
+    const val   = parseFloat(budgetInput.value);
+    const now   = new Date();
+    const month = now.getMonth() + 1;
+    const year  = now.getFullYear();
+    budget      = isNaN(val) ? 0 : val;
 
     try {
-      const postRes = await authFetch('/httpTriggerAddBudget', {
+      const res = await authFetch('/httpTriggerAddBudget', {
         method: 'POST',
-        body: JSON.stringify({
-          amount:      budget,
-          description: 'Monthly budget'
-        })
+        body: JSON.stringify({ amount: budget, description: 'Monthly budget', month, year })
       });
-      if (!postRes.ok) {
-        const { error } = await postRes.json();
-        return alert(error);
-      }
+      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+
+      // capture the id from the upsert response
+      const saved = await res.json();
+      budgetId    = saved.id;
+      console.log('Saved budget with id', budgetId);
+
+      updateSummary();
     } catch (e) {
-      console.error('Budget save failed:', e);
-      return alert('Could not save budget: ' + e.message);
+      console.error('Set budget failed', e);
+      alert('Could not set budget: ' + e.message);
     }
-    updateSummary();
   });
 }
+
+
+
+function wireUpUpdateBudget() {
+  updateBudgetBtn.addEventListener('click', async () => {
+    if (!budgetId) {
+      return alert('No existing budget to update. Please click Set Budget first.');
+    }
+
+    const val   = parseFloat(budgetInput.value);
+    budget      = isNaN(val) ? 0 : val;
+
+    try {
+      const res = await authFetch(
+        `/httpTriggerUpdateBudget?id=${encodeURIComponent(budgetId)}`,
+        { method: 'PUT', body: JSON.stringify({ amount: budget }) }
+      );
+      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+
+      console.log('Budget updated');
+      updateSummary();
+    } catch (e) {
+      console.error('Update budget failed', e);
+      alert('Could not update budget: ' + e.message);
+    }
+  });
+}
+
+
 
 function wireUpForm() {
   document.getElementById('transactionForm').addEventListener('submit', async e => {
@@ -211,6 +251,7 @@ window.editTransaction = idx => console.log('Edit transaction', idx);
 
 document.addEventListener('DOMContentLoaded', () => {
   wireUpBudget();
+  wireUpUpdateBudget();
   wireUpForm();
   loadData().catch(err => {
     console.error('Initial load failed:', err);
