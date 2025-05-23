@@ -6,6 +6,8 @@
   <title>Login</title>
   <link rel="stylesheet" href="./css/style_login.css" />
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="./js/global.js" defer></script>
+  <script src="./js/login.js" defer></script>
 </head>
 <body>
   <div class="login-container">
@@ -26,38 +28,5 @@
       <p class="redirect">Don’t have an account? <a href="register.html">Register</a></p>
     </form>
   </div>
-
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      try {
-        const response = await fetch(
-          'https://finance-app-cne.azurewebsites.net/api/httptriggerauth',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          }
-        );
-
-        if (!response.ok) {
-          const msg = await response.text();
-          throw new Error(msg || response.statusText);
-        }
-
-        const { token } = await response.json();
-        // Store JWT under 'jwt' key
-        localStorage.setItem('jwt', token);
-        // Redirect to home/dashboard
-        window.location.href = 'home.html';
-      } catch (err) {
-        console.error('Login failed:', err);
-        alert('Login failed: ' + err.message);
-      }
-    });
-  </script>
 </body>
 </html>
