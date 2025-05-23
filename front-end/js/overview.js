@@ -6,10 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const categories = ["Food", "Housing", "Hobbies", "Other"];
     const categoryApiNames = {
-        Food: "food",
-        Housing: "housing",
-        Hobbies: "hobbies",
-        Other: "other"
+        Food: "Food",
+        Housing: "Housing",
+        Hobbies: "Hobbies",
+        Other: "Other"
     };
 
     const tbody = document.querySelector("#categorySummaryTable tbody");
@@ -53,6 +53,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
-
+    window.fetchSpentPerCategory = fetchSpentPerCategory;
     fetchSpentPerCategory();
 });

@@ -181,6 +181,7 @@ function wireUpForm() {
 
     e.target.reset();
     await loadData();
+    if (window.fetchSpentPerCategory) window.fetchSpentPerCategory();
   });
 }
 
@@ -204,6 +205,7 @@ window.deleteTransaction = async idx => {
     return alert('Could not delete transaction: ' + err.message);
   }
   await loadData();
+  if (window.fetchSpentPerCategory) window.fetchSpentPerCategory();
 };
 window.editTransaction = idx => console.log('Edit transaction', idx);
 
