@@ -149,6 +149,8 @@ export class CosmosBudgetRepository {
             amount: budgetToChange.getAmount(),
             description: budgetToChange.getDescription(),
             createdAt: budgetToChange.getCreatedAt().toISOString(),
+            year: budgetToChange.getCreatedAt().getFullYear(),
+            monthInt: budgetToChange.getCreatedAt().getMonth() + 1
         };
         await this.container.item(updatedDocument.id).replace(updatedDocument);
         return budgetToChange;
