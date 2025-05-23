@@ -1,14 +1,4 @@
 # CNE-group1
-Run the following commands in a terminal (**cd in the `back-end` folder!!**), to get the application up and running.
+The app is live and accessible via Azure Static Web Apps: [https://financetracker.z6.web.core.windows.net](https://financetracker.z6.web.core.windows.net)
 
-First, install all required node dependencies using npm (node package manager):
-
-```console
-> npm install
-```
-
-Then, to start the backend server execute:
-
-```console
-> npm start
-```
+Running front-end locally is possible with vs code extension live server
