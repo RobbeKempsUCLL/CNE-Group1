@@ -1,9 +1,3 @@
-// front-end/js/home.js
-
-// 1. Base URL for your Functions host
-const API_BASE = 'https://finance-app-cne.azurewebsites.net/api';
-
-// 2. Authenticated fetch helper
 function authFetch(path, opts = {}) {
   const token = localStorage.getItem('jwt');
   if (!token) throw new Error('Not authenticated');
@@ -15,21 +9,17 @@ function authFetch(path, opts = {}) {
   return fetch(`${API_BASE}${path}`, opts);
 }
 
-// 3. Application state
 let transactions = [];
 let budget = 0;
 
-// 4. Load budget, incomes, and expenses from back-end
 async function loadData() {
   console.log('loadData start');
-  // Compute month/year
   const now   = new Date();
   const month = now.getMonth() + 1;
   const year  = now.getFullYear();
 
-  // Fetch budget for this month
   console.log('fetching budget for', month, year);
-  let bv;   // we’ll set this below
+  let bv;   
   try {
     const res = await authFetch(
       `/httpTriggerGetBudget?month=${month}&year=${year}`,
@@ -40,19 +30,15 @@ async function loadData() {
     const json = await res.json();
     console.log('budget payload:', json);
 
-    // 1) If json.budget is a number → use it
     if (typeof json.budget === 'number') {
       bv = json.budget;
     }
-    // 2) Else if json.budget is an object with .amount → use that
     else if (json.budget && typeof json.budget.amount === 'number') {
       bv = json.budget.amount;
     }
-    // 3) Else if top‐level json.amount exists → use that
     else if (typeof json.amount === 'number') {
       bv = json.amount;
     }
-    // 4) Otherwise default to zero
     else {
       console.warn('Unrecognized budget shape, defaulting to 0');
       bv = 0;
@@ -66,7 +52,6 @@ async function loadData() {
   console.log('loaded budget =', budget);
   document.getElementById('budgetInput').value = budget;
 
-  // 2) Fetch incomes
   console.log('Fetching incomes...');
   const incRes = await authFetch('/httpTriggerGetIncome', { method: 'GET' });
   console.log('Incomes response status:', incRes.status);
@@ -76,7 +61,6 @@ async function loadData() {
     ? incJson
     : incJson.income || [];
 
-  // 3) Fetch expenses
   console.log('Fetching expenses...');
   const expRes = await authFetch('/httpTriggerGetSpendings', { method: 'GET' });
   console.log('Expenses response status:', expRes.status);
@@ -86,7 +70,6 @@ async function loadData() {
     ? expJson
     : expJson.spendings || [];
 
-  // 4) Map to uniform shape
   transactions = [
     ...incomes.map(i => ({
       id:         i.id,
@@ -110,8 +93,6 @@ async function loadData() {
   updateSummary();
 }
 
-
-// 5. Render transactions into the table
 function renderTransactions() {
   const tbody = document.getElementById('transactions');
   tbody.innerHTML = '';
@@ -129,7 +110,6 @@ function renderTransactions() {
   });
 }
 
-// 6. Update summary fields
 function updateSummary() {
   const incomeTotal  = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
   const expenseTotal = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
@@ -140,7 +120,6 @@ function updateSummary() {
   document.getElementById('balance').textContent       = (budget + incomeTotal - expenseTotal).toFixed(2);
 }
 
-// 7. Wire up budget setter to POST to back-end
 function wireUpBudget() {
   document.getElementById('setBudgetBtn').addEventListener('click', async () => {
     const val = parseFloat(document.getElementById('budgetInput').value);
@@ -166,7 +145,6 @@ function wireUpBudget() {
   });
 }
 
-// 8. Wire up transaction form to POST incomes/expenses
 function wireUpForm() {
   document.getElementById('transactionForm').addEventListener('submit', async e => {
     e.preventDefault();
@@ -206,10 +184,8 @@ function wireUpForm() {
   });
 }
 
-// 9. Stub delete/edit handlers
 window.deleteTransaction = async idx => {
   const tx = transactions[idx];
-  // choose the right endpoint
   const endpoint = tx.type === 'income'
     ? '/httpTriggerDeleteIncome'
     : '/httpTriggerDeleteSpending';
@@ -227,13 +203,10 @@ window.deleteTransaction = async idx => {
     console.error('Delete transaction failed:', err);
     return alert('Could not delete transaction: ' + err.message);
   }
-
-  // reload the list
   await loadData();
 };
 window.editTransaction = idx => console.log('Edit transaction', idx);
 
-// 10. Bootstrap on page load
 document.addEventListener('DOMContentLoaded', () => {
   wireUpBudget();
   wireUpForm();

@@ -1,0 +1,1 @@
+const API_BASE = 'https://finance-app-cne.azurewebsites.net/api';
