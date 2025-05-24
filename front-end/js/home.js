@@ -94,7 +94,7 @@ async function loadData() {
       amount:    i.amount,
       desc:      i.desc ?? i.title ?? '',
       category:  i.category,
-      type:      'income',
+      type:      'Income',
       timestamp: i.timestamp
     })),
     ...expenses.map(e => ({
@@ -102,7 +102,7 @@ async function loadData() {
       amount:    e.amount,
       desc:      e.desc ?? e.title ?? '',
       category:  e.category,
-      type:      'expense',
+      type:      'Expense',
       timestamp: e.timestamp
     }))
   ];
