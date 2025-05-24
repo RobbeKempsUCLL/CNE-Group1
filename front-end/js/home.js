@@ -122,7 +122,6 @@ function renderTransactions() {
       <td>${t.category}</td>
       <td class="${t.type}">${t.type}</td>      
       <td><button onclick="deleteTransaction(${idx})">Delete</button></td>
-      <td><button onclick="editTransaction(${idx})">Edit</button></td>
     `;
     tbody.appendChild(tr);
   });
