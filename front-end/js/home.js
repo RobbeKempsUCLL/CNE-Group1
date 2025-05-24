@@ -117,7 +117,7 @@ function updateSummary() {
   document.getElementById('totalIncome').textContent  = incomeTotal.toFixed(2);
   document.getElementById('totalExpenses').textContent = expenseTotal.toFixed(2);
   document.getElementById('budget').textContent        = budget.toFixed(2);
-  document.getElementById('balance').textContent       = (budget + incomeTotal - expenseTotal).toFixed(2);
+  document.getElementById('balance').textContent       = (budget - expenseTotal).toFixed(2);
 }
 
 function wireUpBudget() {
