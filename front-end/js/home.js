@@ -60,6 +60,16 @@ async function loadData() {
   console.log('loaded budget =', budget);
   document.getElementById('budgetInput').value = budget;
 
+  const setBtn = document.getElementById('setBudgetBtn');
+  const updateBtn = document.getElementById('updateBudgetBtn');
+  if (budgetId) {
+    setBtn.style.display = "none";
+    updateBtn.style.display = "";
+  } else {
+    setBtn.style.display = "";
+    updateBtn.style.display = "none";
+  }
+
   console.log('Fetching incomes...');
   const incRes = await authFetch('/httpTriggerGetIncome', { method: 'GET' });
   console.log('Incomes response status:', incRes.status);
@@ -125,7 +135,7 @@ function updateSummary() {
   document.getElementById('totalIncome').textContent  = incomeTotal.toFixed(2);
   document.getElementById('totalExpenses').textContent = expenseTotal.toFixed(2);
   document.getElementById('budget').textContent        = budget.toFixed(2);
-  document.getElementById('balance').textContent       = (budget + incomeTotal - expenseTotal).toFixed(2);
+  document.getElementById('balance').textContent       = (budget - expenseTotal).toFixed(2);
 }
 
 function wireUpBudget() {
@@ -149,6 +159,9 @@ function wireUpBudget() {
       console.log('Saved budget with id', budgetId);
 
       updateSummary();
+
+      setBudgetBtn.style.display = "none";
+      updateBudgetBtn.style.display = "";
     } catch (e) {
       console.error('Set budget failed', e);
       alert('Could not set budget: ' + e.message);
